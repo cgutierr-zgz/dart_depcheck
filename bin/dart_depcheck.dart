@@ -11,14 +11,17 @@ void main(List<String> arguments) async {
   final parser = ArgParser();
   parser.addOption('path', abbr: 'p', help: 'Path to the Flutter/Dart project');
   parser.addOption('folders', abbr: 'f', help: 'Additional folders to search');
+  parser.addOption('exclude', abbr: 'e', help: 'Packages to exclude');
   final args = parser.parse(arguments);
 
   final projectPath = args['path'] ?? '.';
   final additionalFolders = args['folders']?.split(',');
+  final excludePackages = args['exclude']?.split(',');
 
   final (dep, devDep) = await DependencyChecker.check(
     projectPath: projectPath,
     additionalFolders: additionalFolders,
+    excludePackages: excludePackages,
   );
 
   if (dep.isEmpty && devDep.isEmpty) {

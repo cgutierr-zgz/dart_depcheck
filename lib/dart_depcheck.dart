@@ -7,14 +7,25 @@ abstract class DependencyChecker {
   /// Checks for unused dependencies in the project.
   ///
   /// [projectPath] is the path to the project. Defaults to the current directory.
-  /// [additionalFolders] is a list of additional folders to search for Dart files.
+  /// [additionalFolders] is a list of additional folders to search for Dart files, by default it only searches the `lib` folder.
+  /// [excludePackages] is a list of packages to exclude from the unused dependency check.
   ///
   /// Returns a [Future] with the result of the check as a [List<String>].
   /// For example, if there are unused dependencies, the list will contain the unused dependencies as `['yaml', 'path']`.
+  /// 
+  /// Usage:
+  /// ```dart
+  /// final (dep, devDep) = await DependencyChecker.check(
+  ///  projectPath: projectPath,
+  ///  additionalFolders: ['bin', 'test'],
+  ///  excludePackages: ['yaml', 'path'],
+  /// );
+  /// ```
   static Future<(List<String> dependencies, List<String> devDependencies)>
       check({
     String projectPath = '.',
     List<String>? additionalFolders,
+    List<String>? excludePackages,
   }) async {
     final packageFile = File('$projectPath/pubspec.yaml');
 
@@ -60,12 +71,18 @@ abstract class DependencyChecker {
     // Checks for unused dependencies and unused dev dependencies
     dependencies.forEach((dependency, _) {
       if (!usedPackages.contains(dependency)) {
+        if (excludePackages != null && excludePackages.contains(dependency)) {
+          return;
+        }
         unusedDependencies.add(dependency);
       }
     });
 
     devDependencies.forEach((dependency, _) {
       if (!usedPackages.contains(dependency)) {
+        if (excludePackages != null && excludePackages.contains(dependency)) {
+          return;
+        }
         unusedDevDependencies.add(dependency);
       }
     });

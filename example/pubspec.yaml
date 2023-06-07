@@ -1,0 +1,11 @@
+name: example
+description: A sample command-line application.
+version: 1.0.0
+publish_to: "none" # Remove this line if you wish to publish to pub.dev
+
+environment:
+  sdk: ^3.0.2
+
+dependencies:
+  dart_depcheck: 
+    path: ../
