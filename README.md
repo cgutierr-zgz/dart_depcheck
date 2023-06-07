@@ -58,6 +58,7 @@ void main() async {
   await DependencyChecker.check(
     projectPath: '/path/to/project',
     additionalFolders: ['bin', 'test'],
+    excludePackages: ['yaml', 'path'],
   );
 }
 ```
@@ -70,6 +71,5 @@ This project is licensed under the MIT License. See the LICENSE file for more de
 
 ---
 ## TODO 📝
-- [ ] Add tests and generate coverage report on CI
-- [ ] Add CI/CD for premerge checks
+- [ ] Add CI/CD for premerge checks + Generate coverage report on CI
 - [ ] Add CI/CD for publishing to pub.dev and create a GitHub release

@@ -12,7 +12,7 @@ abstract class DependencyChecker {
   ///
   /// Returns a [Future] with the result of the check as a [List<String>].
   /// For example, if there are unused dependencies, the list will contain the unused dependencies as `['yaml', 'path']`.
-  /// 
+  ///
   /// Usage:
   /// ```dart
   /// final (dep, devDep) = await DependencyChecker.check(
@@ -46,9 +46,11 @@ abstract class DependencyChecker {
       if (additionalFolders != null)
         ...additionalFolders.map((folder) => Directory(folder))
     ];
+    final existingFolders =
+        foldersToSearch.where((folder) => folder.existsSync()).toList();
 
     // Goes through the Dart files of the project and additional folders, and finds the imported packages
-    for (var folder in foldersToSearch) {
+    for (var folder in existingFolders) {
       await for (var file in folder.list(recursive: true)) {
         if (file is File && file.path.endsWith('.dart')) {
           final content = await file.readAsString();
