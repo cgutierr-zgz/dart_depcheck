@@ -25,6 +25,12 @@ dart_depcheck # This will check the current directory for unused dependencies.
 dart_depcheck -p /path/to/project # This will check the specified project path for unused dependencies.
 dart_depcheck -f bin,test # This will include the specified additional folders (lib, bin, test) in the search for unused dependencies.
 dart_depcheck -e yaml,path # This will exclude the specified packages (yaml, path) from the unused dependency check.
+
+# You can also combine the options:
+dart_depcheck -p /path/to/project -f bin,test -e yaml,path
+
+# To display the help message:
+dart_depcheck --help
 ```
 
 This will check the dependencies declared in the `pubspec.yaml` file and display a list of unused dependencies found in the project.
