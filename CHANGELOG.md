@@ -1,3 +1,8 @@
+## 0.0.1-dev.4
+
+- Small code improvements and fixes to the CLI.
+- Adds --help option.
+
 ## 0.0.1-dev.3
 
 - Skips folders that don't exist to avoid errors.
