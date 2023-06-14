@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:dart_depcheck/src/errors.dart';
 import 'package:yaml/yaml.dart';
 
 /// A custom depcheck command for Flutter/Dart projects.
@@ -27,20 +28,47 @@ abstract class DependencyChecker {
     List<String>? additionalFolders,
     List<String>? excludePackages,
   }) async {
+    final packageFile = _getPackageFile(projectPath);
+    final pubspecContent = await _readPubspecFile(packageFile);
+    final pubspecData = _parsePubspecContent(pubspecContent);
+
+    final usedPackages = await _findUsedPackages(
+      projectPath,
+      additionalFolders,
+    );
+
+    final unusedDependencies = _findUnusedDependencies(
+      pubspecData['dependencies'],
+      usedPackages,
+      excludePackages,
+    );
+    final unusedDevDependencies = _findUnusedDependencies(
+      pubspecData['dev_dependencies'],
+      usedPackages,
+      excludePackages,
+    );
+
+    return (unusedDependencies, unusedDevDependencies);
+  }
+
+  static File _getPackageFile(String projectPath) {
     final packageFile = File('$projectPath/pubspec.yaml');
+    if (!packageFile.existsSync()) throw PubspecNotFoundError(projectPath);
 
-    if (!packageFile.existsSync()) {
-      throw Exception('pubspec.yaml was not found in $projectPath');
-    }
+    return packageFile;
+  }
 
-    final pubspecContent = await packageFile.readAsString();
+  static Future<String> _readPubspecFile(File packageFile) async =>
+      await packageFile.readAsString();
+
+  static Map<String, dynamic> _parsePubspecContent(String pubspecContent) {
     final pubspecData = json.decode(json.encode(loadYaml(pubspecContent)));
+    return pubspecData;
+  }
 
-    final dependencies = pubspecData['dependencies'] ?? {};
-    final devDependencies = pubspecData['dev_dependencies'] ?? {};
-
+  static Future<Set<String>> _findUsedPackages(
+      String projectPath, List<String>? additionalFolders) async {
     final usedPackages = <String>{};
-
     final foldersToSearch = [
       Directory('$projectPath/lib'),
       if (additionalFolders != null)
@@ -49,7 +77,6 @@ abstract class DependencyChecker {
     final existingFolders =
         foldersToSearch.where((folder) => folder.existsSync()).toList();
 
-    // Goes through the Dart files of the project and additional folders, and finds the imported packages
     for (var folder in existingFolders) {
       await for (var file in folder.list(recursive: true)) {
         if (file is File && file.path.endsWith('.dart')) {
@@ -57,9 +84,8 @@ abstract class DependencyChecker {
           final imports = RegExp(r'package:(\w+)/').allMatches(content);
 
           for (var match in imports) {
-            if (match.groupCount > 0) {
-              final packageName = match.group(1);
-              if (packageName == null) continue;
+            final packageName = match.group(1);
+            if (packageName != null) {
               usedPackages.add(packageName);
             }
           }
@@ -67,28 +93,22 @@ abstract class DependencyChecker {
       }
     }
 
-    final unusedDependencies = <String>[];
-    final unusedDevDependencies = <String>[];
+    return usedPackages;
+  }
 
-    // Checks for unused dependencies and unused dev dependencies
-    dependencies.forEach((dependency, _) {
-      if (!usedPackages.contains(dependency)) {
-        if (excludePackages != null && excludePackages.contains(dependency)) {
-          return;
-        }
+  static List<String> _findUnusedDependencies(
+      Map<String, dynamic>? dependencies,
+      Set<String> usedPackages,
+      List<String>? excludePackages) {
+    final unusedDependencies = <String>[];
+
+    dependencies?.forEach((dependency, _) {
+      if (!usedPackages.contains(dependency) &&
+          (excludePackages == null || !excludePackages.contains(dependency))) {
         unusedDependencies.add(dependency);
       }
     });
 
-    devDependencies.forEach((dependency, _) {
-      if (!usedPackages.contains(dependency)) {
-        if (excludePackages != null && excludePackages.contains(dependency)) {
-          return;
-        }
-        unusedDevDependencies.add(dependency);
-      }
-    });
-
-    return (unusedDependencies, unusedDevDependencies);
+    return unusedDependencies;
   }
 }

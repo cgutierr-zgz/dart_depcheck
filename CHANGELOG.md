@@ -1,3 +1,8 @@
+## 0.0.1-dev.5
+
+- Adds PubspecNotFoundError exception.
+- Separates code into different smaller functions.
+
 ## 0.0.1-dev.4
 
 - Small code improvements and fixes to the CLI.

@@ -14,6 +14,9 @@ Make sure you have the Dart SDK installed on your machine.
 
 ```bash
 dart pub global activate dart_depcheck
+
+# Or locally by cloning the repository and running:
+dart pub global activate --source path .
 ```
 
 2. Run the dart_depcheck command in the root of your Flutter/Dart project to check for unused dependencies:
