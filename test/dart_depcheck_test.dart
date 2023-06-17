@@ -155,7 +155,6 @@ void main() {}
         await DependencyChecker.check(projectPath: 'invalid_path');
       }, throwsA(isA<PubspecNotFoundError>()));
 
-      // test the toString method
       try {
         await DependencyChecker.check(projectPath: 'invalid_path');
       } catch (e) {

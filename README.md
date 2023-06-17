@@ -36,7 +36,7 @@ dart_depcheck -p /path/to/project -f bin,test -e yaml,path
 dart_depcheck --help
 ```
 
-This will check the dependencies declared in the `pubspec.yaml` file and display a set of unused dependencies found in the project.
+This will check the dependencies declared in the `pubspec.yaml` file and display a list of both unused dependencies and dev_dependencies found in the project.
 
 ### Option 2: Add as a Dependency 📦
 

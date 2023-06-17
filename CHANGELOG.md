@@ -1,3 +1,7 @@
+## 0.0.1-dev.6+1
+
+- Small updates to docs.
+
 ## 0.0.1-dev.6
 
 - Converts all List's to Set's to avoid duplicates.
