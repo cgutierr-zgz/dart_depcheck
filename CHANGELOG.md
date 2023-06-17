@@ -1,3 +1,8 @@
+## 0.0.1-dev.6
+
+- Converts all List's to Set's to avoid duplicates.
+- Improves test coverage.
+
 ## 0.0.1-dev.5
 
 - Adds PubspecNotFoundError exception.

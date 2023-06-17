@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:dart_depcheck/dart_depcheck.dart';
+import 'package:dart_depcheck/src/errors.dart';
 import 'package:test/test.dart';
 import 'package:path/path.dart' as path;
 
@@ -152,7 +153,15 @@ void main() {}
 
       expect(() async {
         await DependencyChecker.check(projectPath: 'invalid_path');
-      }, throwsA(isA<Exception>()));
+      }, throwsA(isA<PubspecNotFoundError>()));
+
+      // test the toString method
+      try {
+        await DependencyChecker.check(projectPath: 'invalid_path');
+      } catch (e) {
+        expect(e.toString(),
+            contains('pubspec.yaml was not found in invalid_path'));
+      }
     });
 
     test('check - additional folders', () async {
@@ -185,7 +194,7 @@ void main() {}
 
       final (dep, devDep) = await DependencyChecker.check(
         projectPath: projectPath,
-        additionalFolders: ['test'],
+        additionalFolders: {'test'},
       );
 
       expect(dep, isEmpty);
@@ -214,7 +223,7 @@ void main() {}
 
       final (dep, devDep) = await DependencyChecker.check(
         projectPath: projectPath,
-        excludePackages: ['package_b'],
+        excludePackages: {'package_b'},
       );
 
       expect(dep, contains('package_a'));

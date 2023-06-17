@@ -11,7 +11,7 @@ abstract class DependencyChecker {
   /// [additionalFolders] is a list of additional folders to search for Dart files, by default it only searches the `lib` folder.
   /// [excludePackages] is a list of packages to exclude from the unused dependency check.
   ///
-  /// Returns a [Future] with the result of the check as a [List<String>].
+  /// Returns a [Future] with the result of the check as a [Set<String> dependencies, Set<String> devDependencies].
   /// For example, if there are unused dependencies, the list will contain the unused dependencies as `['yaml', 'path']`.
   ///
   /// Usage:
@@ -22,11 +22,10 @@ abstract class DependencyChecker {
   ///  excludePackages: ['yaml', 'path'],
   /// );
   /// ```
-  static Future<(List<String> dependencies, List<String> devDependencies)>
-      check({
+  static Future<(Set<String> dependencies, Set<String> devDependencies)> check({
     String projectPath = '.',
-    List<String>? additionalFolders,
-    List<String>? excludePackages,
+    Set<String>? additionalFolders,
+    Set<String>? excludePackages,
   }) async {
     final packageFile = _getPackageFile(projectPath);
     final pubspecContent = await _readPubspecFile(packageFile);
@@ -67,7 +66,7 @@ abstract class DependencyChecker {
   }
 
   static Future<Set<String>> _findUsedPackages(
-      String projectPath, List<String>? additionalFolders) async {
+      String projectPath, Set<String>? additionalFolders) async {
     final usedPackages = <String>{};
     final foldersToSearch = [
       Directory('$projectPath/lib'),
@@ -96,11 +95,9 @@ abstract class DependencyChecker {
     return usedPackages;
   }
 
-  static List<String> _findUnusedDependencies(
-      Map<String, dynamic>? dependencies,
-      Set<String> usedPackages,
-      List<String>? excludePackages) {
-    final unusedDependencies = <String>[];
+  static Set<String> _findUnusedDependencies(Map<String, dynamic>? dependencies,
+      Set<String> usedPackages, Set<String>? excludePackages) {
+    final unusedDependencies = <String>{};
 
     dependencies?.forEach((dependency, _) {
       if (!usedPackages.contains(dependency) &&
