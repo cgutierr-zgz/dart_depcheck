@@ -8,7 +8,7 @@ issue_tracker: https://github.com/cgutierr-zgz/dart_depcheck/issues
 documentation: https://pub.dev/documentation/dart_depcheck/latest/
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=3.1.0 <4.0.0"
 
 dependencies:
   args: ^2.3.0
