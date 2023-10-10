@@ -82,3 +82,4 @@ This project is licensed under the MIT License. See the LICENSE file for more de
 ## TODO 📝
 - [ ] Add CI/CD for premerge checks + Generate coverage report on CI
 - [ ] Add CI/CD for publishing to pub.dev and create a GitHub release
+- [ ] Add branch protection rules
