@@ -1,3 +1,7 @@
+## 0.1.0
+
+- Updates core libraries.
+
 ## 0.0.1-dev.6+1
 
 - Small updates to docs.

@@ -21,15 +21,14 @@ void main(List<String> arguments) async {
       print(parser.usage);
       return;
     }
-
     final projectPath = args['path'] ?? '.';
-    final additionalFolders = args['folders']?.split(',');
-    final excludePackages = args['exclude']?.split(',');
+    final additionalFolders = args['folders']?.split(',') as List<String>?;
+    final excludePackages = args['exclude']?.split(',') as List<String>?;
 
     final (dep, devDep) = await DependencyChecker.check(
       projectPath: projectPath,
-      additionalFolders: additionalFolders,
-      excludePackages: excludePackages,
+      additionalFolders: additionalFolders?.toSet(),
+      excludePackages: excludePackages?.toSet(),
     );
 
     if (dep.isEmpty && devDep.isEmpty) {
