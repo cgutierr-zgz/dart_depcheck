@@ -7,6 +7,7 @@
 /// # see usage
 /// dart_depcheck --help
 /// ```
-library dart_depcheck;
+library;
 
 export 'src/dart_depcheck.dart';
+export 'src/errors.dart';

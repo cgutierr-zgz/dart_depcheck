@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dart_depcheck/dart_depcheck.dart';
+// ignore: depend_on_referenced_packages
 import 'package:path/path.dart' as path;
 
 void main() async {
