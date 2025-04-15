@@ -7,4 +7,4 @@ environment:
   sdk: ^3.0.2
 
 dependencies:
-  dart_depcheck: ^1.0.0
+  dart_depcheck: ^1.0.1

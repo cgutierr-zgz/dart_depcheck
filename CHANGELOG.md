@@ -1,3 +1,7 @@
+## 1.0.1
+
+- **FIX**: Fix issue with JSON output format.
+
 ## 1.0.0
 
 - **FEAT**: Add `--json` flag for JSON output format.

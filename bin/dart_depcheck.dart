@@ -9,7 +9,7 @@ void _printBold(String text) => print('\u001b[1m$text\u001b[0m');
 void _printGreen(String text) => print('\u001b[32m$text\u001b[0m');
 void _printRed(String text) => print('\u001b[31m$text\u001b[0m');
 
-const String version = '1.0.0';
+const String version = '1.0.1';
 
 void main(List<String> arguments) async {
   final parser = ArgParser()
@@ -57,8 +57,8 @@ void main(List<String> arguments) async {
 
     if (args['json']) {
       final result = {
-        'unusedDependencies': dep,
-        'unusedDevDependencies': devDep,
+        'unusedDependencies': dep.toList(),
+        'unusedDevDependencies': devDep.toList(),
       };
       print(jsonEncode(result));
       return;

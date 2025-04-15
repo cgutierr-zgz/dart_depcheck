@@ -1,6 +1,6 @@
 name: dart_depcheck
 description: A custom depcheck command for Flutter/Dart projects to check for unused dependencies.
-version: 1.0.0
+version: 1.0.1
 
 repository: https://github.com/cgutierr-zgz/dart_depcheck
 homepage: https://github.com/cgutierr-zgz/dart_depcheck
