@@ -4,6 +4,7 @@
 - **FEAT**: Add `--summary` flag for concise summary output.
 - **FEAT**: Add `--version` flag to display the package version.
 - **CHORE**: Bump version to 1.0.0.
+- **CHORE**: Update dependencies.
 - **DOCS**: Update README with new CLI options.
 
 ## 0.1.0
