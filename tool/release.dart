@@ -8,21 +8,12 @@
 //
 // Usage:
 //   dart run tool/release.dart [major|minor|patch|build|breaking|none] [--push]
-//   dart run tool/release.dart --push-only   # just push pending commits + tags
 //
 // Runnable from the terminal, from VS Code tasks, or from the Run & Debug panel
 // (see .vscode/launch.json / tasks.json).
 import 'dart:io';
 
 Future<void> main(List<String> args) async {
-  // Push an already-cut release (commits + tags) without bumping again.
-  if (args.contains('--push-only')) {
-    stdout.writeln('==> Pushing pending commits + tags (publishes to pub.dev)');
-    await _run('git', ['push', '--follow-tags']);
-    stdout.writeln('Pushed — the publish workflow is now running.');
-    return;
-  }
-
   final push = args.contains('--push');
   final positional = args.where((a) => !a.startsWith('-')).toList();
   final bump = positional.isEmpty ? 'patch' : positional.first;
@@ -51,7 +42,7 @@ Future<void> main(List<String> args) async {
   final version = (await _capture('dart', ['run', 'cider', 'version'])).trim();
   final tag = 'v$version';
 
-  await _run('git', ['add', 'pubspec.yaml', 'CHANGELOG.md']);
+  await _run('git', ['add', 'pubspec.yaml', 'pubspec.lock', 'CHANGELOG.md']);
   await _run('git', ['commit', '-m', 'chore: release $tag']);
   await _run('git', ['tag', tag]);
 

@@ -99,15 +99,6 @@
       "args": ["patch"],
       "console": "terminal",
       "presentation": { "group": "9_release", "order": 6 }
-    },
-    {
-      "name": "Release: push pending tag (publishes to pub.dev)",
-      "type": "dart",
-      "request": "launch",
-      "program": "tool/release.dart",
-      "args": ["--push-only"],
-      "console": "terminal",
-      "presentation": { "group": "9_release", "order": 7 }
     }
   ]
 }
