@@ -1,4 +1,5 @@
 # Changelog
+## 2.0.1 - 2026-06-17
 ## 2.0.0 - 2026-06-17
 ### Added
 - Detect missing dependencies (packages imported in the source but not declared in `pubspec.yaml`).
