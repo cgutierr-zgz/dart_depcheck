@@ -47,58 +47,31 @@
       "presentation": { "group": "3_test", "order": 1 }
     },
     {
-      "name": "Release: patch (commit + tag + push)",
+      "name": "Release: patch (x.x.+1)",
       "type": "dart",
       "request": "launch",
       "program": "tool/release.dart",
       "args": ["patch", "--push"],
-      "console": "terminal",
-      "presentation": { "group": "9_release", "order": 1 }
+      "console": "integratedTerminal",
+      "presentation": { "group": "4_release", "order": 1 }
     },
     {
-      "name": "Release: minor (commit + tag + push)",
+      "name": "Release: minor (x.+1.0)",
       "type": "dart",
       "request": "launch",
       "program": "tool/release.dart",
       "args": ["minor", "--push"],
-      "console": "terminal",
-      "presentation": { "group": "9_release", "order": 2 }
+      "console": "integratedTerminal",
+      "presentation": { "group": "4_release", "order": 2 }
     },
     {
-      "name": "Release: major (commit + tag + push)",
+      "name": "Release: major (+1.0.0)",
       "type": "dart",
       "request": "launch",
       "program": "tool/release.dart",
       "args": ["major", "--push"],
-      "console": "terminal",
-      "presentation": { "group": "9_release", "order": 3 }
-    },
-    {
-      "name": "Release: breaking (commit + tag + push)",
-      "type": "dart",
-      "request": "launch",
-      "program": "tool/release.dart",
-      "args": ["breaking", "--push"],
-      "console": "terminal",
-      "presentation": { "group": "9_release", "order": 4 }
-    },
-    {
-      "name": "Release: this version, no bump (commit + tag + push)",
-      "type": "dart",
-      "request": "launch",
-      "program": "tool/release.dart",
-      "args": ["none", "--push"],
-      "console": "terminal",
-      "presentation": { "group": "9_release", "order": 5 }
-    },
-    {
-      "name": "Release: cut only — no push (patch)",
-      "type": "dart",
-      "request": "launch",
-      "program": "tool/release.dart",
-      "args": ["patch"],
-      "console": "terminal",
-      "presentation": { "group": "9_release", "order": 6 }
+      "console": "integratedTerminal",
+      "presentation": { "group": "4_release", "order": 3 }
     }
   ]
 }
