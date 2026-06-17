@@ -31,6 +31,11 @@ Future<void> main(List<String> args) async {
     exit(1);
   }
 
+  // Make sure a plain `git push` (CLI or IDE button) also pushes the release
+  // tag. Without this, a lightweight tag is left behind and the publish
+  // workflow never runs.
+  await _run('git', ['config', 'push.followTags', 'true']);
+
   await _run('dart', ['pub', 'get']);
   if (bump != 'none') {
     stdout.writeln('==> Bumping version ($bump)');
@@ -44,7 +49,8 @@ Future<void> main(List<String> args) async {
 
   await _run('git', ['add', 'pubspec.yaml', 'pubspec.lock', 'CHANGELOG.md']);
   await _run('git', ['commit', '-m', 'chore: release $tag']);
-  await _run('git', ['tag', tag]);
+  // Annotated tag (-a): lightweight tags are NOT sent by `git push`/push.followTags.
+  await _run('git', ['tag', '-a', tag, '-m', 'Release $tag']);
 
   stdout.writeln('\nReleased $tag locally.');
 

@@ -3,3 +3,7 @@
 .dart_tool/
 .DS_Store
 coverage/
+
+# The example app pins a path dependency on this package, so its lock file
+# rewrites on every version bump. It has no value tracked.
+example/pubspec.lock
