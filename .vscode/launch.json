@@ -1,0 +1,104 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "depcheck: current dir (lib only)",
+      "type": "dart",
+      "request": "launch",
+      "program": "bin/dart_depcheck.dart",
+      "presentation": { "group": "1_cli", "order": 1 }
+    },
+    {
+      "name": "depcheck: self (bin,test)",
+      "type": "dart",
+      "request": "launch",
+      "program": "bin/dart_depcheck.dart",
+      "args": ["-f", "bin,test", "-e", "lints,test,cider"],
+      "presentation": { "group": "1_cli", "order": 2 }
+    },
+    {
+      "name": "depcheck: --help",
+      "type": "dart",
+      "request": "launch",
+      "program": "bin/dart_depcheck.dart",
+      "args": ["--help"],
+      "presentation": { "group": "1_cli", "order": 3 }
+    },
+    {
+      "name": "depcheck: --json",
+      "type": "dart",
+      "request": "launch",
+      "program": "bin/dart_depcheck.dart",
+      "args": ["-f", "bin,test", "-e", "lints,test,cider", "--json"],
+      "presentation": { "group": "1_cli", "order": 4 }
+    },
+    {
+      "name": "Run example",
+      "type": "dart",
+      "request": "launch",
+      "program": "example/lib/example.dart",
+      "presentation": { "group": "2_example", "order": 1 }
+    },
+    {
+      "name": "Run tests",
+      "type": "dart",
+      "request": "launch",
+      "program": "test/dart_depcheck_test.dart",
+      "presentation": { "group": "3_test", "order": 1 }
+    },
+    {
+      "name": "Release: patch (commit + tag + push)",
+      "type": "dart",
+      "request": "launch",
+      "program": "tool/release.dart",
+      "args": ["patch", "--push"],
+      "console": "terminal",
+      "presentation": { "group": "9_release", "order": 1 }
+    },
+    {
+      "name": "Release: minor (commit + tag + push)",
+      "type": "dart",
+      "request": "launch",
+      "program": "tool/release.dart",
+      "args": ["minor", "--push"],
+      "console": "terminal",
+      "presentation": { "group": "9_release", "order": 2 }
+    },
+    {
+      "name": "Release: major (commit + tag + push)",
+      "type": "dart",
+      "request": "launch",
+      "program": "tool/release.dart",
+      "args": ["major", "--push"],
+      "console": "terminal",
+      "presentation": { "group": "9_release", "order": 3 }
+    },
+    {
+      "name": "Release: breaking (commit + tag + push)",
+      "type": "dart",
+      "request": "launch",
+      "program": "tool/release.dart",
+      "args": ["breaking", "--push"],
+      "console": "terminal",
+      "presentation": { "group": "9_release", "order": 4 }
+    },
+    {
+      "name": "Release: this version, no bump (commit + tag + push)",
+      "type": "dart",
+      "request": "launch",
+      "program": "tool/release.dart",
+      "args": ["none", "--push"],
+      "console": "terminal",
+      "presentation": { "group": "9_release", "order": 5 }
+    },
+    {
+      "name": "Release: cut only — no push (patch)",
+      "type": "dart",
+      "request": "launch",
+      "program": "tool/release.dart",
+      "args": ["patch"],
+      "console": "terminal",
+      "presentation": { "group": "9_release", "order": 6 }
+    }
+  ]
+}

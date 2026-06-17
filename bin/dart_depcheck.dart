@@ -1,6 +1,7 @@
 #!/usr/bin/env dart
 
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:args/args.dart';
 import 'package:dart_depcheck/dart_depcheck.dart';
@@ -9,7 +10,7 @@ void _printBold(String text) => print('\u001b[1m$text\u001b[0m');
 void _printGreen(String text) => print('\u001b[32m$text\u001b[0m');
 void _printRed(String text) => print('\u001b[31m$text\u001b[0m');
 
-const String version = '1.0.1';
+const String version = '1.1.0';
 
 void main(List<String> arguments) async {
   final parser = ArgParser()
@@ -25,6 +26,11 @@ void main(List<String> arguments) async {
     ..addFlag(
       'summary',
       help: 'Display a concise summary',
+      negatable: false,
+    )
+    ..addFlag(
+      'fail-on-issues',
+      help: 'Exit with a non-zero code when issues are found (useful in CI)',
       negatable: false,
     )
     ..addFlag(
@@ -49,39 +55,54 @@ void main(List<String> arguments) async {
     final additionalFolders = args['folders']?.split(',') as List<String>?;
     final excludePackages = args['exclude']?.split(',') as List<String>?;
 
-    final (dep, devDep) = await DependencyChecker.check(
+    final result = await DependencyChecker.analyze(
       projectPath: projectPath,
       additionalFolders: additionalFolders?.toSet(),
       excludePackages: excludePackages?.toSet(),
     );
 
+    final dep = result.unusedDependencies;
+    final devDep = result.unusedDevDependencies;
+    final missing = result.missingDependencies;
+
+    final bool failOnIssues = args['fail-on-issues'];
+    void exitIfRequested() {
+      if (failOnIssues && !result.isClean) exit(1);
+    }
+
     if (args['json']) {
-      final result = {
-        'unusedDependencies': dep.toList(),
-        'unusedDevDependencies': devDep.toList(),
-      };
-      print(jsonEncode(result));
+      print(jsonEncode(result.toJson()));
+      exitIfRequested();
       return;
     }
 
     if (args['summary']) {
-      final totalUnused = dep.length + devDep.length;
-      if (totalUnused == 0) {
-        _printGreen('No unused dependencies found.');
+      final totalIssues = dep.length + devDep.length + missing.length;
+      if (totalIssues == 0) {
+        _printGreen('No dependency issues found.');
       } else {
         _printBold('Summary:');
-        _printRed('$totalUnused unused dependencies found.');
-        _printBold('Unused dependencies:');
-        _printRed(dep.join('\n'));
-        _printBold('Unused dev dependencies:');
-        _printRed(devDep.join('\n'));
-        _printBold('Consider removing them to keep your project clean.');
+        _printRed('$totalIssues dependency issue(s) found.');
+        if (dep.isNotEmpty) {
+          _printBold('Unused dependencies:');
+          _printRed(dep.join('\n'));
+        }
+        if (devDep.isNotEmpty) {
+          _printBold('Unused dev dependencies:');
+          _printRed(devDep.join('\n'));
+        }
+        if (missing.isNotEmpty) {
+          _printBold('Missing dependencies:');
+          _printRed(missing.join('\n'));
+        }
+        _printBold('Consider fixing them to keep your project clean.');
       }
+      exitIfRequested();
       return;
     }
 
-    if (dep.isEmpty && devDep.isEmpty) {
-      _printGreen('No unused dependencies found.');
+    if (result.isClean) {
+      _printGreen('No dependency issues found.');
       return;
     }
 
@@ -93,6 +114,11 @@ void main(List<String> arguments) async {
       _printBold('Unused dev dependencies:');
       _printRed(devDep.join('\n'));
     }
+    if (missing.isNotEmpty) {
+      _printBold('Missing dependencies (imported but not declared):');
+      _printRed(missing.join('\n'));
+    }
+    exitIfRequested();
   } catch (e) {
     _printRed(e.toString());
     _printBold('Usage:');

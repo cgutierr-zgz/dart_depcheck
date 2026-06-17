@@ -1,0 +1,83 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Release: cut version",
+      "detail": "Bump version, promote Unreleased changelog, commit and tag (does NOT push).",
+      "type": "shell",
+      "command": "dart run tool/release.dart ${input:bumpType}",
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated", "group": "release" }
+    },
+    {
+      "label": "Release: push tag (publishes to pub.dev)",
+      "detail": "Pushes commits + tags, triggering the publish workflow. Irreversible.",
+      "type": "shell",
+      "command": "git push --follow-tags",
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "dedicated", "group": "release" }
+    },
+    {
+      "label": "Changelog: add entry",
+      "detail": "Adds an entry to the Unreleased section via cider.",
+      "type": "shell",
+      "command": "dart run cider log ${input:changeType} \"${input:changeText}\"",
+      "problemMatcher": [],
+      "presentation": { "reveal": "always", "panel": "shared", "group": "release" }
+    },
+    {
+      "label": "Test",
+      "type": "shell",
+      "command": "dart test",
+      "group": { "kind": "test", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "Test (with coverage)",
+      "type": "shell",
+      "command": "dart test --coverage=coverage",
+      "problemMatcher": []
+    },
+    {
+      "label": "Analyze",
+      "type": "shell",
+      "command": "dart analyze",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": ["$dart-analyze"]
+    },
+    {
+      "label": "Format",
+      "type": "shell",
+      "command": "dart format .",
+      "problemMatcher": []
+    },
+    {
+      "label": "Publish: dry run",
+      "detail": "Validates the package as pub.dev would, without publishing.",
+      "type": "shell",
+      "command": "dart pub publish --dry-run",
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "bumpType",
+      "type": "pickString",
+      "description": "Version bump",
+      "options": ["patch", "minor", "major", "build", "breaking", "none"],
+      "default": "patch"
+    },
+    {
+      "id": "changeType",
+      "type": "pickString",
+      "description": "Changelog section",
+      "options": ["added", "changed", "deprecated", "removed", "fixed", "security"],
+      "default": "added"
+    },
+    {
+      "id": "changeText",
+      "type": "promptString",
+      "description": "Changelog entry text"
+    }
+  ]
+}

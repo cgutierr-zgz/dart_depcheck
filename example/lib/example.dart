@@ -29,16 +29,19 @@ void main() async {
   dartFile.writeAsStringSync('''
         import 'package:package_a/package_a.dart';
         import 'package:package_b/package_b.dart';
+        import 'package:undeclared_pkg/undeclared_pkg.dart';
         void main() {}
       ''');
 
   // This is how you use it
-  final (dep, devDep) = await DependencyChecker.check(
+  final result = await DependencyChecker.analyze(
     projectPath: projectPath,
   );
 
-  print('Unused dependencies: $dep');
-  print('Unused dev_dependencies: $devDep');
+  print('Unused dependencies: ${result.unusedDependencies}');
+  print('Unused dev_dependencies: ${result.unusedDevDependencies}');
+  print('Missing dependencies: ${result.missingDependencies}');
+  print('Clean: ${result.isClean}');
 
   tempDir.deleteSync(recursive: true);
 }

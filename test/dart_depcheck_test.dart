@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:dart_depcheck/dart_depcheck.dart';
-import 'package:dart_depcheck/src/errors.dart';
 import 'package:test/test.dart';
 import 'package:path/path.dart' as path;
 
@@ -227,6 +226,147 @@ void main() {}
 
       expect(dep, contains('package_a'));
       expect(devDep, contains('package_c'));
+    });
+
+    test('analyze - additional folders are resolved relative to projectPath',
+        () async {
+      // Regression test: additional folders used to be resolved relative to
+      // the current working directory instead of [projectPath].
+      final projectPath = tempDir.path;
+
+      final pubspecFile = File(path.join(projectPath, 'pubspec.yaml'));
+      pubspecFile.writeAsStringSync('''
+        name: test_project
+        dependencies:
+          package_a: ^1.0.0
+          package_b: ^2.0.0
+      ''');
+
+      final libDir = Directory(path.join(projectPath, 'lib'));
+      libDir.createSync(recursive: true);
+      File(path.join(libDir.path, 'main.dart')).writeAsStringSync('''
+import 'package:package_a/package_a.dart';
+void main() {}
+''');
+
+      // Uniquely-named folder that cannot collide with the cwd of the runner.
+      final extraDir = Directory(path.join(projectPath, 'tooling_scripts'));
+      extraDir.createSync(recursive: true);
+      File(path.join(extraDir.path, 'tool.dart')).writeAsStringSync('''
+import 'package:package_b/package_b.dart';
+void main() {}
+''');
+
+      final result = await DependencyChecker.analyze(
+        projectPath: projectPath,
+        additionalFolders: {'tooling_scripts'},
+      );
+
+      expect(result.unusedDependencies, isEmpty);
+      expect(result.unusedDevDependencies, isEmpty);
+    });
+
+    test('analyze - detects missing dependencies', () async {
+      final projectPath = tempDir.path;
+
+      final pubspecFile = File(path.join(projectPath, 'pubspec.yaml'));
+      pubspecFile.writeAsStringSync('''
+        name: test_project
+        dependencies:
+          package_a: ^1.0.0
+      ''');
+
+      final libDir = Directory(path.join(projectPath, 'lib'));
+      libDir.createSync(recursive: true);
+      File(path.join(libDir.path, 'main.dart')).writeAsStringSync('''
+import 'package:package_a/package_a.dart';
+import 'package:undeclared_pkg/undeclared_pkg.dart';
+void main() {}
+''');
+
+      final result = await DependencyChecker.analyze(projectPath: projectPath);
+
+      expect(result.missingDependencies, contains('undeclared_pkg'));
+      expect(result.missingDependencies, isNot(contains('package_a')));
+      expect(result.isClean, isFalse);
+    });
+
+    test('analyze - self-imports are not reported as missing', () async {
+      final projectPath = tempDir.path;
+
+      final pubspecFile = File(path.join(projectPath, 'pubspec.yaml'));
+      pubspecFile.writeAsStringSync('''
+        name: my_package
+        dependencies:
+          package_a: ^1.0.0
+      ''');
+
+      final libDir = Directory(path.join(projectPath, 'lib'));
+      libDir.createSync(recursive: true);
+      File(path.join(libDir.path, 'main.dart')).writeAsStringSync('''
+import 'package:my_package/src/foo.dart';
+import 'package:package_a/package_a.dart';
+void main() {}
+''');
+
+      final result = await DependencyChecker.analyze(projectPath: projectPath);
+
+      expect(result.missingDependencies, isEmpty);
+      expect(result.unusedDependencies, isEmpty);
+    });
+
+    test('analyze - excluded packages are not reported as missing', () async {
+      final projectPath = tempDir.path;
+
+      final pubspecFile = File(path.join(projectPath, 'pubspec.yaml'));
+      pubspecFile.writeAsStringSync('''
+        name: test_project
+        dependencies:
+          package_a: ^1.0.0
+      ''');
+
+      final libDir = Directory(path.join(projectPath, 'lib'));
+      libDir.createSync(recursive: true);
+      File(path.join(libDir.path, 'main.dart')).writeAsStringSync('''
+import 'package:package_a/package_a.dart';
+import 'package:generated_pkg/generated_pkg.dart';
+void main() {}
+''');
+
+      final result = await DependencyChecker.analyze(
+        projectPath: projectPath,
+        excludePackages: {'generated_pkg'},
+      );
+
+      expect(result.missingDependencies, isEmpty);
+    });
+
+    test('analyze - clean project reports isClean and serializes to JSON',
+        () async {
+      final projectPath = tempDir.path;
+
+      final pubspecFile = File(path.join(projectPath, 'pubspec.yaml'));
+      pubspecFile.writeAsStringSync('''
+        name: test_project
+        dependencies:
+          package_a: ^1.0.0
+      ''');
+
+      final libDir = Directory(path.join(projectPath, 'lib'));
+      libDir.createSync(recursive: true);
+      File(path.join(libDir.path, 'main.dart')).writeAsStringSync('''
+import 'package:package_a/package_a.dart';
+void main() {}
+''');
+
+      final result = await DependencyChecker.analyze(projectPath: projectPath);
+
+      expect(result.isClean, isTrue);
+      expect(result.toJson(), {
+        'unusedDependencies': <String>[],
+        'unusedDevDependencies': <String>[],
+        'missingDependencies': <String>[],
+      });
     });
   });
 }

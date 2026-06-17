@@ -1,0 +1,43 @@
+name: Publish dart_depcheck
+
+# Publishes the package to pub.dev and creates a GitHub release whenever a
+# version tag (e.g. v1.1.0) is pushed.
+#
+# pub.dev publishing uses GitHub OIDC, so no secrets/tokens are required.
+# One-time setup on pub.dev is needed (see README → Maintainer setup):
+#   pub.dev → admin → "Automated publishing" → enable for this repo and the
+#   tag pattern `v{{version}}`.
+on:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
+jobs:
+  publish:
+    permissions:
+      id-token: write # Required for OIDC authentication against pub.dev.
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+
+  release:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to create the GitHub release.
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dart-lang/setup-dart@v1
+      - name: Install dependencies
+        run: dart pub get
+      - name: Extract changelog notes for this version
+        id: notes
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          {
+            echo 'body<<CIDER_EOF'
+            dart run cider describe "$VERSION"
+            echo 'CIDER_EOF'
+          } >> "$GITHUB_OUTPUT"
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          body: ${{ steps.notes.outputs.body }}
