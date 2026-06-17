@@ -47,7 +47,10 @@ Future<void> main(List<String> args) async {
   final version = (await _capture('dart', ['run', 'cider', 'version'])).trim();
   final tag = 'v$version';
 
-  await _run('git', ['add', 'pubspec.yaml', 'pubspec.lock', 'CHANGELOG.md']);
+  await _run('git', ['add', 'pubspec.yaml', 'CHANGELOG.md']);
+  // Stage the lock too, but only if it's tracked — some packages gitignore it,
+  // and `git add` on an ignored path fails.
+  await _runAllowFail('git', ['add', 'pubspec.lock']);
   await _run('git', ['commit', '-m', 'chore: release $tag']);
   // Annotated tag (-a): lightweight tags are NOT sent by `git push`/push.followTags.
   await _run('git', ['tag', '-a', tag, '-m', 'Release $tag']);
@@ -76,6 +79,16 @@ Future<void> _run(String executable, List<String> args) async {
     stderr.writeln('error: `$executable ${args.join(' ')}` failed ($code).');
     exit(code);
   }
+}
+
+/// Runs [executable] inheriting stdio; ignores a non-zero exit code.
+Future<void> _runAllowFail(String executable, List<String> args) async {
+  final process = await Process.start(
+    executable,
+    args,
+    mode: ProcessStartMode.inheritStdio,
+  );
+  await process.exitCode;
 }
 
 /// Runs [executable] and returns its stdout.
