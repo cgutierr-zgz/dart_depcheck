@@ -16,7 +16,7 @@ jobs:
   publish:
     permissions:
       id-token: write # Required for OIDC authentication against pub.dev.
-    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1.7.2
 
   release:
     needs: publish
